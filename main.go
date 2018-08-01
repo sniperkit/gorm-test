@@ -13,25 +13,38 @@ import (
 	"github.com/k0kubun/pp"
 )
 
+var (
+	localDumpFile string = "./gh-starred.json"
+	withDialect   string = "mysql"
+	withIndexer   string = "manticore" // elasticsearch or manticore/sphinxsearch
+)
+
 func main() {
 
 	// db.Set("gorm:insert_option", "ON DUPLICATE KEY UPDATE").Create(&star)
 	// ON DUPLICATE KEY UPDATE
 
-	db, err := gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "root", "da33ve79T!", "127.0.0.1", "3306", "snk_gorm_test"))
-	if err != nil {
-		log.Fatalln("error while creating connection with database: ", err)
+	switch withDialect {
+	case "mysql":
+		db, err := gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234!T", "127.0.0.1", "3306", "gorm_test"))
+		if err != nil {
+			log.Fatalln("error while creating connection with database: ", err)
+		}
+	case "sqlite", "sqlite3":
+		fallthrough
+	default:
+		db, err := gorm.Open("sqlite", "gh_starred.db")
+		if err != nil {
+			log.Fatalln("error while creating connection with database: ", err)
+		}
 	}
 
 	defer db.Close()
 	db.LogMode(true)
 
-	// db.AutoMigrate(&Star{})
-	// db.AutoMigrate(&Tag{})
 	truncateTables(db, testTables...)
 
-	// db.AutoMigrate(&Topic{})
-	content, err := ioutil.ReadFile("gh-starred.json")
+	content, err := ioutil.ReadFile(localDumpFile)
 	if err != nil {
 		log.Fatalln("error while reading file: ", err)
 	}
