@@ -1,0 +1,16 @@
+# Golang CircleCI 2.0 configuration file
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.10
+    working_directory: /go/src/github.com/optiopay/kafka
+    steps:
+      - checkout
+      - run: go get github.com/kisielk/errcheck
+      - run: go get -v -t -d ./...
+      - run: go vet ./...
+      - run: errcheck ./...
+      - run: go test -v -race -timeout=5m $(go list ./... | grep -v integration)

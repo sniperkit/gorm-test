@@ -1,4 +1,4 @@
-vendor/
+# vendor/
 .env
 .idea
 /logs
@@ -25,10 +25,10 @@ node_modules
 npm-debug.log
 !vendor/vendor.json
 
-vendor
-vendor/
-vendor/*
-vendor/**
+# vendor
+# vendor/
+# vendor/*
+# vendor/**
 
 shared/data
 shared/data/
