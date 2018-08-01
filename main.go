@@ -28,7 +28,7 @@ func main() {
 	var err error
 	switch withDialect {
 	case "mysql":
-		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234!T", "127.0.0.1", "3306", "gorm_test"))
+		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234T!", "127.0.0.1", "3306", "gorm_test"))
 		if err != nil {
 			log.Fatalln("error while creating connection with database: ", err)
 		}

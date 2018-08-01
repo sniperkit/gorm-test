@@ -9,7 +9,7 @@ import (
 
 var testTables = []interface{}{
 	&Star{},
-	&Topic{},
+	&Tag{},
 }
 
 type Model struct {
