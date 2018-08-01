@@ -1,0 +1,38 @@
+hash: fa79ba1a2da338b555ca73d7ae8f70bcc5a8e78499979bd1f29d7128bb76969e
+updated: 2018-08-01T11:16:22.489769588+02:00
+imports:
+- name: github.com/go-sql-driver/mysql
+  version: 749ddf1598b47e3cd909414bda735fe790ef3d30
+- name: github.com/jinzhu/gorm
+  version: 0fd395ab37aefd2d50854f0556a4311dccc6f45a
+  subpackages:
+  - dialects/mysql
+  - dialects/sqlite
+- name: github.com/jinzhu/inflection
+  version: 04140366298a54a039076d798123ffa108fff46c
+- name: github.com/k0kubun/pp
+  version: e057ee7a28277be4d2af303443b6da377768181f
+- name: github.com/mattn/go-colorable
+  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+- name: github.com/mattn/go-isatty
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mattn/go-sqlite3
+  version: 3aefd9f0a162514f66d0e4ceda3edc44e66b502e
+- name: github.com/sniperkit/jargon
+  version: 2670a4f6bcecd796dbfcc45a8ebeb997fcaa1134
+  subpackages:
+  - stackexchange
+- name: golang.org/x/net
+  version: d0887baf81f4598189d4e12a37c6da86f0bba4d0
+  subpackages:
+  - html
+  - html/atom
+- name: golang.org/x/sys
+  version: ac767d655b305d4e9612f5f6e33120b9176c4ad4
+  subpackages:
+  - unix
+- name: google.golang.org/appengine
+  version: b1f26356af11148e710935ed1ac8a7f5702c7612
+  subpackages:
+  - cloudsql
+testImports: []

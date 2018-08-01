@@ -1,0 +1,10 @@
+package: github.com/sniperkit/gorm-test
+import:
+- package: github.com/jinzhu/gorm
+  subpackages:
+  - dialects/mysql
+  - dialects/sqlite
+- package: github.com/k0kubun/pp
+- package: github.com/sniperkit/jargon
+  subpackages:
+  - stackexchange
