@@ -162,7 +162,7 @@ services:
     # image: gorm.io/neo4j:latest-alpine
     container_name: neo4j
     build:
-      context: ./shared/docker/neo4j/alpine/version
+      context: ./shared/docker/neo4j/alpine/version/community
       # default fallbacks are set in Dockerfile
       args:
       - NEO4J_EDITION="community"
