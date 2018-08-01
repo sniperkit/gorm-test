@@ -1,4 +1,6 @@
 package: github.com/sniperkit/gorm-test
+ignore:
+- github.com/Sirupsen/logrus
 import:
 - package: github.com/sirupsen/logrus
 - package: github.com/docker/engine-api
