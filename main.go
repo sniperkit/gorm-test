@@ -24,16 +24,18 @@ func main() {
 	// db.Set("gorm:insert_option", "ON DUPLICATE KEY UPDATE").Create(&star)
 	// ON DUPLICATE KEY UPDATE
 
+	var db *gorm.DB
+	var err error
 	switch withDialect {
 	case "mysql":
-		db, err := gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234!T", "127.0.0.1", "3306", "gorm_test"))
+		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234!T", "127.0.0.1", "3306", "gorm_test"))
 		if err != nil {
 			log.Fatalln("error while creating connection with database: ", err)
 		}
 	case "sqlite", "sqlite3":
 		fallthrough
 	default:
-		db, err := gorm.Open("sqlite", "gh_starred.db")
+		db, err = gorm.Open("sqlite", "gh_starred.db")
 		if err != nil {
 			log.Fatalln("error while creating connection with database: ", err)
 		}
