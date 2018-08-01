@@ -1,0 +1,48 @@
+version: "2"
+
+services:
+  #############################
+  # ELASTICSEARCH MASTER NODE #
+  #############################
+  elasticsearch:
+    restart: unless-stopped
+    image: blacktop/elasticsearch:x-pack
+    environment:
+      - cluster.name=docker-cluster
+      - network.host=0
+      - ELASTIC_PASSWORD=pleasechangeme
+      - xpack.security.transport.filter.enabled=false
+      - xpack.security.audit.enabled=true
+    # volumes:
+    #   - data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elastic
+  ###############
+  # KIBANA NODE #
+  ###############
+  kibana:
+    image: blacktop/kibana:x-pack
+    environment:
+      - elasticsearch.url=http://elasticsearch:9200
+      - elasticsearch.username=elastic
+      - elasticsearch.password=pleasechangeme
+      # - xpack.monitoring.ui.container.elasticsearch.enabled=true
+    ports:
+      - "80:5601"
+    links:
+     - elasticsearch
+    networks:
+      - elastic
+#############################
+# ELASTICSEARCH DATA VOLUME #
+#############################
+# volumes:
+#   data:
+################################
+# ELASTICSEARCH BRIDGE NETWORK #
+################################
+networks:
+  elastic:
+    driver: bridge

@@ -1,0 +1,320 @@
+version: "3.6"
+
+services:
+
+### App(s) ##############################################
+  app:
+    image: gorm.io/gorm-test:go1.10.3-alpine3.8
+    container_name: gorm-test
+    # restart: unless-stopped
+    build:
+      context: "."
+    # ports:
+    # - "8080:80"
+    # - "443:443"
+    volumes:
+    - ./shared/docker/nginx/app/alpine/1.1/scripts:/snk/scripts
+    - ./shared/www:/var/www/html
+    - ./shared/config/nginx/nginx.conf:/etc/nginx/snk.conf
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/logs/nginx:/var/log/nginx
+    depends_on:
+    - elstack
+    links:
+    - elstack:elstack
+    networks:
+    - backend
+    entrypoint: /snk/scripts/entrypoint_dev.sh
+    command: ["watch"]
+
+### Postgres ##############################################
+  postgres:
+    image: gorm.io/postgres:10.3-alpine
+    container_name: postgres
+    # restart: unless-stopped
+    build:
+      context: "./shared/docker/postgres/meow/alpine/10.3"
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/data/postgresql/:/var/lib/postgresql/data
+    - ./shared/import/postgresql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: "meower"
+      POSTGRES_USER: "meower"
+      POSTGRES_PASSWORD: "123456"
+    networks:
+    - backend
+
+### Elasticsearch - Node ################################################################################ START #######
+
+### Elastic - Stack ##############################
+  elstack:
+    image: gorm.io/elstack:dev-6.2-alpine
+    container_name: elstack
+    # restart: unless-stopped
+    build:
+      context: ./shared/docker/elastic/elstack/alpine/6.2
+    environment:
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    - "ELASTICSEARCH_URL=http://localhost:9200"
+    - "ELSK_DOMAIN=elstack"
+    - "NGINX_PORT=8080"
+    - "KIBANA_URL=http://localhost:5601"
+    - "KIBANA_DOMAIN=localhost:5601"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+    - IPC_LOCK
+    ports:
+    - 8089:80
+    - 9200:9200
+    - 9300:9300
+    - 5601:5601
+    volumes:
+    - ./shared/config/elstack/nginx:/opt/nginx
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/scripts/elstack/entrypoints:/opt/entrypoints
+    - ./shared/logs/elstack/supervisor:/var/log/supervisor
+    - ./shared/logs/elstack/elastic:/usr/share/elasticsearch/logs
+    - ./shared/logs/elstack/nginx:/var/lib/nginx/logs
+    networks:
+    - backend
+
+### APM ###########################################
+  apm:
+    # image: sniperkit/apm-server:6.2-alpine
+    image: docker.elastic.co/apm/apm-server:6.2.4
+    container_name: apm
+    ports:
+    - 8200:8200
+    volumes:
+    - ./shared/config/apm/apm-server.yml:/usr/share/apm-server/apm-server.yml
+    - ./shared/certs:/etc/certs:ro
+    depends_on:
+    - elstack
+    command: ["apm-server", "-e"]
+
+### MariaDB ##############################################
+  mariadb:
+    image: gorm.io/mariadb:alpine
+    container_name: mariadb
+    restart: unless-stopped
+    build:
+      context: ./shared/docker/mariadb/alpine
+    ports:
+    - "3336:3306"
+    environment:
+    - MYSQL_DATABASE=gorm_mariadb_test
+    - MYSQL_USER=gorm_mariadb
+    - MYSQL_PASSWORD=gorm_secret
+    - MYSQL_ROOT_PASSWORD=gorm_super_secret
+    - TZ=UTC
+    # - MYSQL_DATABASE=${MARIADB_DATABASE}
+    # - MYSQL_USER=${MARIADB_USER}
+    # - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+    # - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/data/mariadb:/var/lib/mysql
+    - ./shared/import/mariadb/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    # - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    networks:
+    - backend
+
+### MySQL ################################################
+  mysql:
+    image: gorm.io/mysql:alpine
+    container_name: mysql
+    restart: unless-stopped
+    build:
+      context: ./shared/docker/mysql/alpine/version
+      args:
+      - MYSQL_VERSION=10.2.15-r0 # ${MYSQL_VERSION}
+    environment:
+    - MYSQL_ROOT_PWD=gorm_super_secret
+    - MYSQL_USER=gorm_mysql
+    - MYSQL_USER_DB=gorm_mysql_test
+    - MYSQL_USER_PWD=gorm_secret
+    - TZ=UTC
+    # - MYSQL_DATABASE=${MYSQL_DATABASE}
+    # - MYSQL_USER=${MYSQL_USER}
+    # - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    # - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    # - TZ=${WORKSPACE_TIMEZONE}
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/data/mysql:/var/lib/mysql
+    - ./shared/import/mysql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    # - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+    - "3316:3306"
+    # - "${MYSQL_PORT}:3306"
+    networks:
+    - backend
+
+### Neo4j ################################################
+  neo4j:
+    # image: gorm.io/neo4j:latest-alpine
+    container_name: neo4j
+    build:
+      context: ./shared/docker/neo4j/alpine/version
+      # default fallbacks are set in Dockerfile
+      args:
+      - NEO4J_EDITION="community"
+      - NEO4J_VERSION="3.5.0-alpha05"
+      - NEO4J_OS="unix"
+      - NEO4J_SHA256="0ae9ce0743243c1bb4259ae96a4b113d4a225a3230c5088cff8b63a5504206e5"
+    restart: unless-stopped
+    build:
+      context: ./shared/docker/neo4j/alpine/version
+    ports:
+    - "7474:7474"
+    - "7473:7473"
+    - "7687:7687"
+    # - "1337:1337"
+    environment:
+    - NEO4J_AUTH=gormio:gormio_secret
+    volumes:
+    - ./shared/certs:/opt/neo4j/ssl:ro
+    # - ./shared/config/neo4j/conf:/opt/neo4j/config
+    - ./shared/config/neo4j/plugins:/opt/neo4j/plugins
+    - ./shared/config/neo4j/imports:/opt/neo4j/imports
+    - ./shared/data/neo4j/data:/opt/neo4j/data
+    - ./shared/logs/neo4j/syslog:/opt/neo4j/logs
+    - ./shared/logs/neo4j/metrics:/opt/neo4j/metrics
+    networks:
+    - backend
+
+### Solr ################################################
+  solr:
+    image: gorm.io/solr:5.5-alpine
+    container_name: solr
+    # restart: unless-stopped
+    build:
+      context: ./shared/docker/solr/alpine/5.5
+      args:
+      - SOLR_VERSION=5.5
+      - SOLR_DATAIMPORTHANDLER_MYSQL=true
+      # - SOLR_VERSION=${SOLR_VERSION}
+      # - SOLR_DATAIMPORTHANDLER_MYSQL=${SOLR_DATAIMPORTHANDLER_MYSQL}
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/data/solr:/opt/solr/server/solr/mycores
+    ports:
+    # - "${SOLR_PORT}:8983"
+    - 8983:8983
+    networks:
+    - backend
+
+### Sphinxsearch - Containers ################################################################################ START #########
+##
+#
+
+### Sphinxsearch - Manticore ###########################################
+# refs.
+# - https://github.com/manticoresoftware/manticore
+# - https://github.com/manticoresoftware/docker
+# docker build --target service -t sniperkit/manticore:2.7dev-alpine --no-cache .
+  manticore:
+    image: gorm.io/manticore:2.7dev-alpine
+    # restart: unless-stopped
+    container_name: manticore
+    build:
+      context: ./shared/docker/manticore/alpine/2.7-snk
+      target: service
+    ports:
+    - 9306:9306
+    - 9312:9312
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/config/manticore/sphinx.conf:/etc/sphinxsearch/sphinx.conf
+    - ./shared/config/manticore/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./shared/data/manticore:/var/lib/manticore/data
+    - ./shared/scripts/manticore/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    # links:
+    # - postgres:postgres
+    # - mysql:mysql
+    # - mariadb:mariadb
+    # depends_on:
+    # - mysql
+    # - postgres
+    # - mariadb
+    networks:
+    - backend
+
+### Nginx ##############################################
+  nginx:
+    image: gorm.io/nginx:source-1.15.1-alpine3.8
+    container_name: nginx
+    # restart: unless-stopped
+    build:
+      context: "./shared/docker/nginx/snk/alpine/1.1"
+    ports:
+    - "8080:80"
+    - "443:443"
+    volumes:
+    - ./shared/docker/nginx/snk/alpine/1.1/scripts:/snk/scripts
+    - ./shared/www:/var/www/html
+    - ./shared/config/nginx/nginx.conf:/etc/nginx/snk.conf
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/logs/nginx:/var/log/nginx
+    depends_on:
+    - elstack
+    links:
+    - elstack:elstack
+    networks:
+    - backend
+    entrypoint: /snk/scripts/entrypoint_dev.sh
+    command: ["watch"]
+
+################################
+# BRIDGE NETWORK               #
+################################
+networks:
+  backend:
+    driver: bridge
+    # driver: ${NETWORKS_DRIVER}
+
+#############################
+# DATA VOLUME               #
+#############################
+volumes:
+  data:
+    driver: local
+  # Mysql data
+  # mysqldata:
+  #   driver: local
+  # Elastic data
+  # esdata:
+  #   driver: local
+  # elasticsearch:
+  #   driver: local
+  # mysql:
+  #   driver: local
+  # percona:
+  #   driver: local
+  # memcached:
+  #   driver: local
+  # redis:
+  #   driver: local
+  # neo4j:
+  #   driver: local
+  # postgres:
+  #   driver: local
+  # mariadb:
+  #   driver: local
+  # mongo:
+  #   driver: local
+  # rethinkdb:
+  #   driver: local
+  # mssql:
+  #   driver: local
+  # phpmyadmin:
+  #   driver: local
+  # aerospike:
+  #   driver: local

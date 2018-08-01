@@ -1,0 +1,103 @@
+.env
+.idea
+
+.docker-sync
+
+.DS_Store
+.idea
+*.log
+*.swp
+
+debug
+dist
+node_modules
+npm-debug.log
+!vendor/vendor.json
+
+# vendor
+# vendor/
+# vendor/*
+# vendor/**
+
+/node_modules/
+/bower_components/
+
+shared/logs
+shared/logs/
+shared/logs/*
+shared/logs/**
+
+# shared/docker
+# shared/docker/
+# shared/docker/*
+# shared/docker/**
+
+shared/docker/snk
+shared/docker/snk/
+shared/docker/snk/*
+shared/docker/snk/**
+
+shared/scripts
+shared/scripts/
+shared/scripts/*
+shared/scripts/**
+
+shared/compose
+shared/compose/
+shared/compose/*
+shared/compose/**
+
+shared/data
+shared/data/
+shared/data/*
+shared/data/**
+
+shared/storage
+shared/storage/
+shared/storage/*
+shared/storage/**
+
+# shared/docker/hbase
+# shared/docker/hbase
+shared/docker/snk*
+
+*.db
+*.bolt*
+*.bbolt*
+
+
+
+_*
+
+
+.nuxt
+
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+# default download directory 
+_dl/
+
+# cache directory
+*_cache/
+*_script/
+*_db/
+
+# temporary directory and file
+tmp/
+*.tmp
+
+./goes

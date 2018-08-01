@@ -1,0 +1,56 @@
+services:
+
+# usage:
+# $ crane cmd console
+# $ crane cmd console test
+# commands:
+  # proxy: lift --no-cache -d nginx
+  # console: run app bin/rails c
+  # server: run app
+  # rspec: run app bin/rspec
+  # rubocop: run app bin/rubocop
+  # psql: exec postgres psql
+
+# https://stackoverflow.com/questions/26291260/restart-nginx-container-when-upstream-servers-is-updated
+# commands:
+  # nginx: run nginx -s reload -g daemon off; # run nginx -g daemon off;
+  # build: run crane make build
+  # build-darwin: run crane make build-darwin
+  # build-darwin-pro: run crane make build-darwin-pro
+  # gofmt: run crane gofmt -w crane
+
+# to add
+# - https://github.com/frol/ddots-api-server
+groups:
+  elw:
+  - nginx
+  - app
+  - postgres
+  - elstack
+  dev:
+  - nginx
+  - app
+  - mysql
+  - postgres
+  rmdb:
+  - mysql
+  - mariadb
+  - postgres
+  sphinx:
+  - mysql
+  - mariadb
+  - postgres
+  - manticore
+  elk:
+  - elstack
+
+accelerated-mounts:
+  nginx:
+    uid: 1000
+    gid: 1000
+  mysql:
+    uid: 1000
+    gid: 1000
+  postgres:
+    uid: 1000
+    gid: 1000

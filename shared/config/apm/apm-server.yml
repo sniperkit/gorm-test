@@ -1,0 +1,13 @@
+apm-server:
+  host: 0.0.0.0:8200
+  # ssl.enabled: true
+  # ssl.certificate: ${SSL_CERTIFICATE}
+  # ssl.key: ${SSL_KEY}
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+setup.kibana:
+  host: "kibana:5601"
+
+setup.dashboarded.enabled: true

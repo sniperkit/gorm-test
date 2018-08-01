@@ -1,0 +1,100 @@
+version: "3.6"
+services:
+
+  #############################  #############################  #############################
+  # Elastic - X-PACK
+  #############################  #############################  #############################
+
+  #############################
+  # ELASTICSEARCH MASTER NODE #
+  #############################
+  es-master-xpack:
+    restart: unless-stopped
+    image: blacktop/elasticsearch:x-pack
+    environment:
+    - cluster.name=docker-cluster
+    - network.host=0
+    - ELASTIC_PASSWORD=pleasechangeme
+    - xpack.security.audit.enabled=true
+    - node.master=true
+    - node.ingest=false
+    - node.data=false
+    volumes:
+    - ./shared/data/elastic:/usr/share/elasticsearch/data
+    networks:
+    - elastic
+
+  #############################################
+  # ELASTICSEARCH X-PACK - CLIENT/INGEST NODE #
+  #############################################
+  es-ingest-xpack:
+    restart: unless-stopped
+    image: blacktop/elasticsearch:x-pack
+    environment:
+    - cluster.name=docker-cluster
+    - network.host=0
+    - ELASTIC_PASSWORD=pleasechangeme
+    - xpack.security.audit.enabled=true
+    - node.master=true
+    - node.ingest=true
+    - node.data=false
+    - discovery.zen.ping.unicast.hosts=es-master-xpack
+    ports:
+    - "9200:9200"
+    links:
+    - es-master-xpack:elastic-master
+    networks:
+    - elastic
+
+  ####################################
+  # ELASTICSEARCH X-PACK - DATA NODE #
+  ####################################
+  es-data-xpack:
+    restart: unless-stopped
+    image: blacktop/elasticsearch:x-pack
+    environment:
+    - cluster.name=docker-cluster
+    - network.host=0
+    - ELASTIC_PASSWORD=pleasechangeme
+    - xpack.security.audit.enabled=true
+    - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    - node.master=false
+    - node.ingest=false
+    - node.data=true
+    - discovery.zen.ping.unicast.hosts=es-master-xpack
+    links:
+    - es-master-xpack:elastic-master
+    # volumes:
+    # - ./shared/data/elastic:/usr/share/elasticsearch/data
+    networks:
+    - elastic
+
+  ########################
+  # KIBANA X-PACK - NODE #
+  ########################
+  kibana-xpack:
+    image: blacktop/kibana:x-pack
+    ports:
+    - "8082:5601"
+    links:
+    - es-ingest-xpack:elasticsearch
+    environment:
+    - elasticsearch.url=http://elasticsearch:9200
+    - elasticsearch.username=elastic
+    - elasticsearch.password=pleasechangeme
+    - xpack.monitoring.ui.container.elasticsearch.enabled=true
+    networks:
+    - elastic
+
+######################################
+# ELASTICSEARCH X-PACK - DATA VOLUME #
+######################################
+volumes:
+  data:
+
+#########################################
+# ELASTICSEARCH X-PACK - BRIDGE NETWORK #
+#########################################
+networks:
+  elastic:
+    driver: bridge

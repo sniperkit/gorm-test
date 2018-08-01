@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+    nginx:
+        container_name: nginx
+        build: .
+        volumes:
+            #- ./logs/:/var/log/nginx/ # Uncomment to save logs to respective files instead of the STDOUT
+            - ./:/etc/nginx/:ro
+
+    fpm:
+        container_name: fpm

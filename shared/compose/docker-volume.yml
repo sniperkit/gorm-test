@@ -1,0 +1,100 @@
+volumes:
+  s3:
+    hostpath: ${here}/volumes/s3
+    vboxpath: /var/lib/sximada/s3
+    directory:
+      - ${here}/volumes/s3/fakes3_root
+
+  gk:
+    hostpath: ${here}/volumes/gk
+    vboxpath: /var/lib/sximada/gk
+    uid: 104
+    gid: 107
+    directory:
+      - ${here}/volumes/gk/etc/nginx/conf.d
+      - ${here}/volumes/gk/etc/ssl/private/gk
+
+  www:
+    hostpath: ${here}/volumes/www
+    vboxpath: /var/lib/sximada/www
+    uid: 104
+    gid: 107
+    directory:
+      - ${here}/volumes/www/usr/share/nginx/html/oauth2
+      - ${here}/volumes/www/etc/nginx/conf.d
+      - ${here}/volumes/www/etc/ssl/private/www
+
+  www-src:
+    hostpath: ${here}/www
+    vboxpath: /var/src/sximada/www
+    uid: 104
+    gid: 107
+
+  # fluentd:
+  #   hostpath: ${here}/volumes/fluentd
+  #   vboxpath: /var/lib/sximada/fluentd
+  #   directory:
+  #     - ${here}/volumes/fluentd/fluentd/etc
+  #     - ${here}/volumes/fluentd/fluentd/plugins
+
+  # sximada:
+  #   hostpath: ${here}/volumes/sximada
+  #   vboxpath: /var/lib/sximada/sximada
+  #   uid: 104
+  #   gid: 107
+  #   directory:
+  #     - ${here}/volumes/sximada/etc/nginx/conf.d
+  #     - ${here}/volumes/sximada/etc/ssl/private/sximada
+
+
+  # www-src:
+  #   hostpath: ${here}/www
+  #   vboxpath: /var/src/sximada/www
+  #   uid: 104
+  #   gid: 107
+
+
+
+  # djangoexample-src:
+  #   hostpath: ${here}/djangoexample
+  #   vboxpath: /var/src/sximada/djangoexample
+
+  # djangoexample:
+  #   hostpath: ${here}/volumes/djangoexample
+  #   vboxpath: /var/lib/sximada/djangoexample
+  #   directory:
+  #     - ${here}/volumes/djangoexample/srv/sximada/djangoexample/var
+  #     - ${here}/volumes/djangoexample/srv/sximada/djangoexample/log
+  #     - ${here}/volumes/djangoexample/srv/sximada/djangoexample/etc
+  #     - ${here}/volumes/djangoexample/srv/sximada/djangoexample/settings
+  #     - ${here}/volumes/djangoexample/srv/sximada/djangoexample/tmp
+
+  # mysql:
+  #   hostpath: ${here}/volumes/mysql
+  #   vboxpath: /var/lib/sximada/mysql
+  #   uid: 999
+  #   gid: 999
+  #   directory:
+  #     - ${here}/volumes/mysql/docker-entrypoint-initdb.d
+  #     - ${here}/volumes/mysql/var/lib/mysql
+  #     - ${here}/volumes/mysql/var/log/mysql
+
+
+  # mitmproxy:
+  #   hostpath: ${here}/volumes/mitmproxy
+  #   vboxpath: /var/lib/sximada/mitmproxy
+  #   directory:
+  #     - ${here}/volumes/mitmproxy/certs
+
+  jupyter-notebook:
+    hostpath: ${here}/volumes/jupyter-notebook
+    vboxpath: /var/lib/sximada/jupyter-notebook
+    directory:
+      - ${here}/volumes/jupyter-notebook/notebooks
+
+  # apt-cacher-ng:
+  #   hostpath: ${here}/volumes/apt-cacher-ng
+  #   vboxpath: /var/lib/sximada/apt-cacher-ng
+  #   dmode: 777
+  #   directory:
+  #     - ${here}/volumes/apt-cacher-ng/var/cache/apt-cacher-ng
