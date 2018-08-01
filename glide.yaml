@@ -1,10 +1,32 @@
 package: github.com/sniperkit/gorm-test
 import:
+- package: github.com/sirupsen/logrus
+- package: github.com/docker/engine-api
+  subpackages:
+  - client
+  - types
+- package: github.com/dustin/go-humanize
+- package: github.com/elastic/beats
+  subpackages:
+  - libbeat/beat
+  - libbeat/common
+  - libbeat/common/fmtstr
+  - libbeat/outputs/elasticsearch
+  - libbeat/outputs/outil
 - package: github.com/jinzhu/gorm
   subpackages:
+  - dialects/postgres
   - dialects/mysql
+  - dialects/mssql
   - dialects/sqlite
 - package: github.com/k0kubun/pp
+- package: github.com/optiopay/kafka
+  subpackages:
+  - proto
 - package: github.com/sniperkit/jargon
   subpackages:
   - stackexchange
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: gopkg.in/olivere/elastic.v5
