@@ -70,7 +70,6 @@ func main() {
 			lang = *star.Language
 		}
 
-		// topics := strings.Join(star.Topics, ", ")
 		aggr := fmt.Sprintf(`%s %s %s %s %s`, uri, desc, readme, lang, strings.Join(star.Topics, ", "))
 		stacks := ExtractStack(aggr, uri)
 		stacks = AddTopicsPrefix(stacks, "stackexchange/", true)
@@ -81,10 +80,6 @@ func main() {
 		dtags = append(dtags, ghTopics...)
 		dtags = RemoveSliceDuplicates(dtags, true)
 		dtags = AddTopicsPrefix(dtags, "", true)
-
-		// star.Tags = Topics2Tags(dtags, "", true)
-		// star.DT = Topics2Tags(dtags, "", true)
-		// star.DT = dtags
 
 		// if err := db.Model(&star).Association("Tags").Error; err != nil {
 		//	log.Println("error while creating association: ", err)
@@ -102,7 +97,9 @@ func main() {
 			log.Println("error while saving data into db: ", err)
 		}
 		// pp.Println(star)
+
 		i++
+
 	}
 
 	pp.Println("processed: ", i)
