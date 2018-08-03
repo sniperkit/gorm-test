@@ -25,7 +25,11 @@ WORKDIR /go/src/${REPO_URI}
 
 ## deps
 COPY glide.lock glide.yaml ./
-COPY vendor vendor
+# COPY vendor vendor
+
+## install commands
+RUN go get -u github.com/Masterminds/glide \
+    && glide install --strip-vendor
 
 ## pkg
 COPY cmd cmd
@@ -34,7 +38,6 @@ COPY cmd cmd
 # COPY cmd/meow cmd/meow
 COPY cmd/gorm-load gorm-load
 
-## install commands
 RUN go install ./... \
     && ls -la /go/bin
 

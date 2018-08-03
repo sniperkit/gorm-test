@@ -1,0 +1,18 @@
+[mysqld]
+socket                      = /var/log/mysql/mysqld.sock
+pid_file                    = /var/log/mysql/mariadb.pid
+datadir                     = /var/lib/mysql
+character-set-server        = utf8
+collation-server            = utf8_unicode_ci
+skip-host-cache
+skip-name-resolve
+
+log_bin                     = /var/log/mysql/mysql-bin
+binlog_format               = mixed
+expire_logs_days            = 30
+
+[mysql]
+socket                      = /var/log/mysql/mysqld.sock
+
+[client]
+socket                      = /var/log/mysql/mysqld.sock

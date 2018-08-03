@@ -10,10 +10,11 @@ ARG NEO4J_URI=http://dist.neo4j.org/neo4j-community-3.4.5-unix.tar.gz
 COPY ./local-package/* /tmp/
 
 RUN apk add --no-cache --quiet \
-    bash \
-    curl \
-    tini \
-    su-exec \
+        wget \
+        bash \
+        curl \
+        tini \
+        su-exec \
     && curl --fail --silent --show-error --location --remote-name ${NEO4J_URI} \
     && echo "${NEO4J_SHA256}  ${NEO4J_TARBALL}" | sha256sum -csw - \
     && tar --extract --file ${NEO4J_TARBALL} --directory /var/lib \

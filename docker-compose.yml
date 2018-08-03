@@ -36,6 +36,7 @@ services:
       context: "./shared/docker/postgres/meow/alpine/10.3"
     volumes:
     - ./shared/certs:/etc/certs:ro
+    # - ./shared/logs/postgresql/:/var/log/postgresql
     - ./shared/data/postgresql/:/var/lib/postgresql/data
     - ./shared/import/postgresql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
@@ -90,6 +91,7 @@ services:
     # image: sniperkit/apm-server:6.2-alpine
     image: docker.elastic.co/apm/apm-server:6.2.4
     container_name: apm
+    # restart: unless-stopped
     ports:
     - 8200:8200
     volumes:
@@ -99,13 +101,33 @@ services:
     - elstack
     command: ["apm-server", "-e"]
 
+### MSSQL ##############################################
+  mssql:
+    image: 'gorm.io/mssqldocker:latest'
+    # image: 'mcmoe/mssqldocker:latest'
+    # restart: unless-stopped
+    build:
+      context: ./shared/docker/mariadb/alpine
+    ports:
+    - 9930:1433
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/data/mssql/:/var/lib/mssql/data
+    # - ./shared/import/mssql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+    - ACCEPT_EULA=Y
+    - SA_PASSWORD=LoremIpsum86
+    - MSSQL_DB=gorm
+    - MSSQL_USER=gorm
+    - MSSQL_PASSWORD=LoremIpsum86
+
 ### MariaDB ##############################################
   mariadb:
     image: gorm.io/mariadb:alpine
     container_name: mariadb
-    restart: unless-stopped
+    # restart: unless-stopped
     build:
-      context: ./shared/docker/mariadb/alpine
+      context: ./shared/docker/mariadb/alpine/apk
     ports:
     - "3336:3306"
     environment:
@@ -120,17 +142,19 @@ services:
     # - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     volumes:
     - ./shared/certs:/etc/certs:ro
-    - ./shared/data/mariadb:/var/lib/mysql
-    - ./shared/import/mariadb/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    - ./shared/logs/mariadb:/var/log/mysql
+    # - ./shared/data/mariadb:/var/lib/mysql
+    # - ./shared/import/mariadb/entrypoint-initdb.d:/docker-entrypoint-initdb.d
     # - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
     networks:
     - backend
+    command: ["mysqld", "--user=mysql"]
 
 ### MySQL ################################################
   mysql:
     image: gorm.io/mysql:alpine
     container_name: mysql
-    restart: unless-stopped
+    # restart: unless-stopped
     build:
       context: ./shared/docker/mysql/alpine/version
       args:
@@ -148,7 +172,8 @@ services:
     # - TZ=${WORKSPACE_TIMEZONE}
     volumes:
     - ./shared/certs:/etc/certs:ro
-    - ./shared/data/mysql:/var/lib/mysql
+    - ./shared/logs/mysql:/var/log/mysql
+    # - ./shared/data/mysql:/var/lib/mysql
     - ./shared/import/mysql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
     # - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
     ports:
@@ -159,16 +184,16 @@ services:
 
 ### Neo4j ################################################
   neo4j:
-    # image: gorm.io/neo4j:latest-alpine
+    image: neo4j:3.4.5
     container_name: neo4j
-    build:
-      context: ./shared/docker/neo4j/alpine/version/community
+    # build:
+      # context: ./shared/docker/neo4j/alpine/version/community
       # default fallbacks are set in Dockerfile
-      args:
-      - NEO4J_EDITION="community"
-      - NEO4J_VERSION="3.5.0-alpha05"
-      - NEO4J_OS="unix"
-      - NEO4J_SHA256="0ae9ce0743243c1bb4259ae96a4b113d4a225a3230c5088cff8b63a5504206e5"
+      # args:
+      # - NEO4J_EDITION="community"
+      # - NEO4J_VERSION="3.5.0-alpha05"
+      # - NEO4J_OS="unix"
+      # - NEO4J_SHA256="0ae9ce0743243c1bb4259ae96a4b113d4a225a3230c5088cff8b63a5504206e5"
     # restart: unless-stopped
     ports:
     - "7474:7474"
@@ -203,6 +228,7 @@ services:
     volumes:
     - ./shared/certs:/etc/certs:ro
     - ./shared/data/solr:/opt/solr/server/solr/mycores
+    - ./shared/logs/solr:/var/logs/solr
     ports:
     # - "${SOLR_PORT}:8983"
     - 8983:8983
@@ -233,6 +259,7 @@ services:
     - ./shared/config/manticore/sphinx.conf:/etc/sphinxsearch/sphinx.conf
     - ./shared/config/manticore/my.cnf:/etc/mysql/conf.d/my.cnf
     - ./shared/data/manticore:/var/lib/manticore/data
+    - ./shared/logs/manticore:/var/logs/manticore
     - ./shared/scripts/manticore/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     # links:
     # - postgres:postgres

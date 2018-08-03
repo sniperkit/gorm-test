@@ -14,10 +14,10 @@ node_modules
 npm-debug.log
 !vendor/vendor.json
 
-# vendor
-# vendor/
-# vendor/*
-# vendor/**
+vendor
+vendor/
+vendor/*
+vendor/**
 
 /node_modules/
 /bower_components/

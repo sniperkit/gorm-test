@@ -1,0 +1,14 @@
+[Unit]
+Description=MariaDB Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=/usr/bin/docker pull ${image}
+ExecStart=/usr/bin/docker run ${map} ${port} --name ${name} -h ${name} ${image}
+ExecStop=/usr/bin/docker stop -t 2 ${name}
+ExecStopPost=/usr/bin/docker rm -f ${name}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,9 @@
 package main
 
+/*
 import (
+	"fmt"
+	"log"
 	"runtime"
 )
 
@@ -14,10 +17,11 @@ func loadFileDB(filePath string) {
 	loadSql = fmt.Sprintf(loadSql, filePath, wrap)
 	_, err := dbs.Exec(loadSql)
 	if err != nil {
-		glog.Error("sql is warn, sql: %s err: %s \n", loadSql, err.Error())
+		log.Fatalf("sql is warn, sql: %s err: %s \n", loadSql, err.Error())
 		sqlClose()
 		sqlConntion()
 		return
 	}
-	glog.Info("db run success! filePath: %s \n", filePath)
+	log.Printf("db run success! filePath: %s \n", filePath)
 }
+*/

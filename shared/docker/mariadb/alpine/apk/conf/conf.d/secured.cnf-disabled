@@ -1,0 +1,3 @@
+[mysqld]
+encrypt_binlog              = 1
+

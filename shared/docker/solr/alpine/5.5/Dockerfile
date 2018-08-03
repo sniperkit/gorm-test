@@ -7,10 +7,16 @@ FROM solr:5.5-alpine
 ARG SOLR_DATAIMPORTHANDLER_MYSQL=false
 ENV SOLR_DATAIMPORTHANDLER_MYSQL=${SOLR_DATAIMPORTHANDLER_MYSQL}
 
+USER root
+
 # download mysql connector for dataimporthandler
 RUN if [ "${SOLR_DATAIMPORTHANDLER_MYSQL}" == "true" ]; then \
+    apk add --no-cache --no-progress curl && \
     curl -L -o /tmp/mysql_connector.tar.gz "https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.45.tar.gz" \
        && mkdir /opt/solr/contrib/dataimporthandler/lib \
        && tar -zxvf /tmp/mysql_connector.tar.gz -C /opt/solr/contrib/dataimporthandler/lib "mysql-connector-java-5.1.45/mysql-connector-java-5.1.45-bin.jar" --strip-components 1 \
+       && apk del curl \
        && rm /tmp/mysql_connector.tar.gz; \
     fi
+
+USER solr

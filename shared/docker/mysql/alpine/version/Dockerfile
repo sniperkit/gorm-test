@@ -9,7 +9,7 @@ RUN apk update && \
     mkdir -p /opt/scripts && \
     rm -rf /var/cache/apk/*
 
-VOLUME ["/var/lib/mysql"]
+VOLUME ["/var/lib/mysql", "/var/lib/mysql"]
 
 COPY ./scripts/docker-entrypoint.sh /opt/scripts/docker-entrypoint.sh
 RUN chmod +x /opt/scripts/docker-entrypoint.sh
