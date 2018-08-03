@@ -28,10 +28,12 @@ groups:
   - postgres
   - elstack
   dev:
-  - nginx
   - app
   - mysql
+  - mariadb
+  - manticore
   - postgres
+  # - elstack
   rmdb:
   - mysql
   - mariadb

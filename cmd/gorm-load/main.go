@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	localDumpFile string = "./gh-starred.json"
-	withDialect   string = "mysql"
-	withIndexer   string = "manticore" // elasticsearch or manticore/sphinxsearch
+	localDumpFile string = "./shared/testdata/gh-starred.json"
+	// localDumpFile string = "../../shared/testdata/gh-starred.json"
+	withDialect string = "mysql"
+	withIndexer string = "manticore" // elasticsearch or manticore/sphinxsearch
 )
 
 /*

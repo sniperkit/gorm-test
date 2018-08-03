@@ -9,42 +9,28 @@ services:
     # restart: unless-stopped
     build:
       context: "."
+      target: interactive
     # ports:
-    # - "8080:80"
-    # - "443:443"
+    # - "8081:8081"
     volumes:
-    - ./shared/docker/nginx/app/alpine/1.1/scripts:/snk/scripts
-    - ./shared/www:/var/www/html
-    - ./shared/config/nginx/nginx.conf:/etc/nginx/snk.conf
     - ./shared/certs:/etc/certs:ro
-    - ./shared/logs/nginx:/var/log/nginx
+    - ./cmd:/go/src/github.com/sniperkit/gorm-test/cmd
+    - ./pkg:/go/src/github.com/sniperkit/gorm-test/pkg
     depends_on:
+    - mariadb
+    - postgres
+    - mysql
     - elstack
+    - manticore
     links:
+    - manticore:manticore
+    - mariadb:mariadb
+    - postgres:postgres
+    - mysql:mysql
     - elstack:elstack
     networks:
     - backend
-    entrypoint: /snk/scripts/entrypoint_dev.sh
-    command: ["watch"]
-
-### Postgres ##############################################
-  postgres:
-    image: gorm.io/postgres:10.3-alpine
-    container_name: postgres
-    # restart: unless-stopped
-    build:
-      context: "./shared/docker/postgres/meow/alpine/10.3"
-    volumes:
-    - ./shared/certs:/etc/certs:ro
-    # - ./shared/logs/postgresql/:/var/log/postgresql
-    - ./shared/data/postgresql/:/var/lib/postgresql/data
-    - ./shared/import/postgresql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
-    environment:
-      POSTGRES_DB: "meower"
-      POSTGRES_USER: "meower"
-      POSTGRES_PASSWORD: "123456"
-    networks:
-    - backend
+    command: ["go", "run", "-race", "./cmd/gorm-load/*.go"]
 
 ### Elasticsearch - Node ################################################################################ START #######
 
@@ -101,18 +87,79 @@ services:
     - elstack
     command: ["apm-server", "-e"]
 
+### Postgres ##############################################
+  postgres:
+    image: postgres:10-alpine
+    # image: gorm.io/postgres:10.3-alpine
+    container_name: postgres
+    # restart: unless-stopped
+    # build:
+    #   context: "./shared/docker/postgres/meow/alpine/10.3"
+    ports:
+    - 5432:5432
+    volumes:
+    - ./shared/certs:/etc/certs:ro
+    - ./shared/import/postgresql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    # - ./shared/data/postgresql/:/var/lib/postgresql/data
+    # - ./shared/logs/postgresql/:/var/log/postgresql
+    environment:
+      - POSTGRES_DB=gorm
+      - POSTGRES_USER=gorm
+      - POSTGRES_PASSWORD=LoremIpsum86
+    networks:
+    - backend
+
+  adminer:
+    image: adminer:4.6.3
+    # restart: unless-stopped
+    container_name: adminer
+    depends_on:
+    - postgres
+    links:
+    - postgres:postgres
+    ports:
+    - 8080:8080
+
+### PGAdmin4 ##############################################
+  pgadmin:
+    image: 'dpage/pgadmin4:latest'
+    container_name: pgadmin4
+    # image: 'mcmoe/mssqldocker:latest'
+    # restart: unless-stopped
+    # build:
+    #  context: ./shared/docker/mssql/alpine
+    ports:
+    - 82:82
+    # - 2443:2443
+    depends_on:
+    - postgres
+    links:
+    - postgres:postgres
+    volumes:
+    - ./shared/certs/certificate.cert:/certs/server.cert:ro
+    - ./shared/certs/certificate.key:/certs/server.key:ro
+    - ./shared/data/pgadmin:/var/lib/pgadmin
+    environment:
+    - PGADMIN_DEFAULT_EMAIL=snk@gorm.io
+    - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    # - PGADMIN_ENABLE_TLS=false
+    - PGADMIN_LISTEN_PORT=82
+    - GUNICORN_THREADS=15
+    # - PGADMIN_LISTEN_PORT=2443
+
 ### MSSQL ##############################################
   mssql:
     image: 'gorm.io/mssqldocker:latest'
+    container_name: mssql
     # image: 'mcmoe/mssqldocker:latest'
     # restart: unless-stopped
     build:
-      context: ./shared/docker/mariadb/alpine
+      context: ./shared/docker/mssql/alpine
     ports:
     - 9930:1433
     volumes:
     - ./shared/certs:/etc/certs:ro
-    - ./shared/data/mssql/:/var/lib/mssql/data
+    - ./shared/data/mssql/:/var/opt/mssql
     # - ./shared/import/mssql/entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
     - ACCEPT_EULA=Y

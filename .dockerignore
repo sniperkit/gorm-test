@@ -52,6 +52,11 @@ shared/data/
 shared/data/*
 shared/data/**
 
+shared/logs
+shared/logs/
+shared/logs/*
+shared/logs/**
+
 shared/storage
 shared/storage/
 shared/storage/*
