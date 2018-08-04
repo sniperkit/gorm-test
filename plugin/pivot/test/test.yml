@@ -1,0 +1,13 @@
+---
+backends:
+    testing:
+        type: dummy
+        dataset: test-one
+        addresses:
+        - 'http://127.0.0.1:0'
+        - 'http://127.0.0.1:1'
+
+        options:
+            first: 1
+            second: true
+            third: 'three'

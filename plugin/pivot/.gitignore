@@ -1,0 +1,12 @@
+/bin
+/vendor
+/public
+/test.yml
+/*.db
+/*.db-*
+/tmp
+/*.json
+*.pyc
+*.egg-info/
+/lib/python/env
+.DS_Store
