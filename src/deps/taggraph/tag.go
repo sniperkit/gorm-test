@@ -1,6 +1,8 @@
 package taggraph
 
-import "strings"
+import (
+	"strings"
+)
 
 //Tagger is an interface for interacting with a node of a TagGrapher
 type Tagger interface {

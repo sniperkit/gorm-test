@@ -2,12 +2,10 @@ package taggraph_test
 
 import (
 	"fmt"
-
-	"github.com/ckaznocha/taggraph"
 )
 
 func Example_tags() {
-	graph := taggraph.NewTagGaph()
+	graph := NewTagGaph()
 
 	graph.AddChildToTag("shirts", "clothes")
 	graph.AddChildToTag("pants", "clothes")

@@ -3,12 +3,13 @@ services:
 # usage:
 # $ crane cmd console
 # $ crane cmd console test
-# commands:
+commands:
   # proxy: lift --no-cache -d nginx
-  # console: run app bin/rails c
-  # server: run app
-  # rspec: run app bin/rspec
-  # rubocop: run app bin/rubocop
+  # console: docker-clean && crane provision -v console
+  # console: run dev bin/rails c
+  # server: run dev
+  # rspec: run dev bin/rspec
+  # rubocop: run dev bin/rubocop
   # psql: exec postgres psql
 
 # https://stackoverflow.com/questions/26291260/restart-nginx-container-when-upstream-servers-is-updated
@@ -19,16 +20,20 @@ services:
   # build-darwin-pro: run crane make build-darwin-pro
   # gofmt: run crane gofmt -w crane
 
+  # console:
+    # set hostname (ref. https://www.craneup.tech/docs/config#services)
+    # hostname: test.gorm.io
+
 # to add
 # - https://github.com/frol/ddots-api-server
 groups:
   elw:
   - nginx
-  - app
+  - console
   - postgres
   - elstack
   dev:
-  - app
+  - console
   - mysql
   - mariadb
   - manticore

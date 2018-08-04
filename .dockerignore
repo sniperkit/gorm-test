@@ -3,10 +3,24 @@
 
 .docker-sync
 
+/.DS_Store
+
 .DS_Store
 .idea
 *.log
 *.swp
+
+*.zip
+*.tar.gz
+
+Dockerfile*
+docker-*
+
+debug
+dist
+node_modules
+npm-debug.log
+!vendor/vendor.json
 
 debug
 dist
@@ -19,6 +33,11 @@ vendor/
 vendor/*
 vendor/**
 
+/vendor
+/vendor/
+/vendor/*
+/vendor/**
+
 /node_modules/
 /bower_components/
 
@@ -27,10 +46,10 @@ shared/logs/
 shared/logs/*
 shared/logs/**
 
-# shared/docker
-# shared/docker/
-# shared/docker/*
-# shared/docker/**
+shared/docker
+shared/docker/
+shared/docker/*
+shared/docker/**
 
 shared/docker/snk
 shared/docker/snk/

@@ -1,6 +1,8 @@
 package taggraph
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestAddTag(t *testing.T) {
 	graph := NewTagGaph()

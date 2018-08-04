@@ -1,0 +1,121 @@
+ARG CONSOLE_BASE_IMAGE_NAME=${CONSOLE_BASE_IMAGE_NAME:-"golang"}
+ARG CONSOLE_BASE_IMAGE_TAG=${CONSOLE_BASE_IMAGE_TAG:-"1.10.3-alpine3.8"}
+ARG CONSOLE_BASE_IMAGE=${CONSOLE_BASE_IMAGE:-"${CONSOLE_BASE_IMAGE_NAME}:${CONSOLE_BASE_IMAGE_TAG}"}
+
+FROM ${CONSOLE_BASE_IMAGE}
+# FROM golang:1.11beta3-alpine3.8
+
+# custom apk package version
+
+## apk - glibc
+ARG ALPINE_GLIBC_PACKAGE_VERSION=${ALPINE_GLIBC_PACKAGE_VERSION:-"2.27-r0"}
+ARG ALPINE_GLIBC_BASE_URL=${ALPINE_GLIBC_BASE_URL:-"https://github.com/sgerrand/alpine-pkg-glibc/releases/download"}
+ARG ALPINE_GLIBC_BASE_PACKAGE_FILENAME=${ALPINE_GLIBC_BASE_PACKAGE_FILENAME:-"glibc-${ALPINE_GLIBC_PACKAGE_VERSION}.apk"}
+ARG ALPINE_GLIBC_BIN_PACKAGE_FILENAME=${ALPINE_GLIBC_BIN_PACKAGE_FILENAME:-"glibc-bin-${ALPINE_GLIBC_PACKAGE_VERSION}.apk"}
+ARG ALPINE_GLIBC_I18N_PACKAGE_FILENAME=${ALPINE_GLIBC_I18N_PACKAGE_FILENAME:-"glibc-i18n-${ALPINE_GLIBC_PACKAGE_VERSION}.apk"}
+
+## apk - sqlite 3.x
+ARG ALPINE_SQLITE_VERSION=${ALPINE_SQLITE_VERSION:-"3.24.0-r0"}
+
+# apk - build deps
+ARG APK_REMOTE=${APK_REMOTE:-"wget curl ca-certificates"}
+
+ARG APK_BUILD=${APK_BUILD:-"gcc g++ make ca-certificates openssl git cmake mercurial make \
+                            nano bash jq musl-dev alpine-sdk sqlite-dev sqlite-libs sqlite tree \
+                            socat build-base automake autoconf libtool zlib-dev"}
+
+# go - tools
+ARG GOLANG_TOOLS_URIS=${GOLANG_TOOLS_URIS:-"github.com/vektah/gqlgen \
+                                            github.com/mitchellh/gox \
+                                            github.com/Masterminds/glide \
+                                            github.com/golang/dep/cmd/dep \
+                                            github.com/mattn/gom \
+                                            github.com/google/zoekt/... \
+                                            github.com/kataras/bindata/cmd/... \
+                                            github.com/svent/sift"}
+
+ARG GRPC_VERSION=${GRPC_VERSION:-"1.7.2"}
+ARG GRPC_JAVA_VERSION=${GRPC_JAVA_VERSION:-"1.8.0"}
+ARG PROTOBUF_VERSION=${PROTOBUF_VERSION:-"3.5.1"}
+ARG PROTOBUF_C_VERSION=${PROTOBUF_C_VERSION:-"1.3.0"}
+ARG PROTOC_GEN_DOC_VERSION=${PROTOC_GEN_DOC_VERSION:-"1.0.0"}
+
+ARG DIST_DIR=${DIST_DIR:-"/opt/dist"}
+
+# ENV PATH=${PATH:-"$PATH:$GOPATH/bin"}
+# RUN for gtu in ${GOLANG_TOOLS_URIS}; do echo "#### - go get $gtu"; done
+# RUN for p in $(glide nv); do go tool vet "${p%/...}"; done
+
+# refs:
+# - https://github.com/golang/go/issues/14481
+RUN clear && \
+    apk --no-cache --no-progress add ${APK_REMOTE} && \
+    apk --no-cache --no-progress add ${APK_BUILD} && \
+    \
+    wget \
+        "https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub" \
+        -O "/etc/apk/keys/sgerrand.rsa.pub" && \
+    \
+    wget \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    \
+    echo "- apk add --no-cache" && \
+    apk add --no-cache \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    \
+    echo "remove public key" && \
+    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
+    \
+    echo "localedef $LANG" && \
+    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
+    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
+    \
+    echo "apk del glibc-i18n" && \
+    apk del glibc-i18n && \
+    \
+    echo "rm wget-hsts" && \
+    rm "/root/.wget-hsts" && \
+    \
+    echo "rm $ALPINE_GLIBC_BASE_PACKAGE_FILENAME $ALPINE_GLIBC_BIN_PACKAGE_FILENAME $ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
+    rm \
+        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
+        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" \
+    \
+    && clear \
+    && echo "GOPATH: $GOPATH" \
+    \
+    && for gtu in ${GOLANG_TOOLS_URIS}; do echo "- go get -u $gtu" ; go get -u $gtu ; go install $gtu ; done \
+    \
+    && rm -fR $GOPATH/src \
+    && rm -fR $GOPATH/pkg \
+    \
+    && ls -l $GOPATH/bin
+
+ARG REPO_VCS=${REPO_VCS:-"github.com"}
+ARG REPO_NAMESPACE=${REPO_NAMESPACE:-"sniperkit"}
+ARG REPO_PROJECT=${REPO_PROJECT:-"gorm-test"}
+ARG REPO_URI=${REPO_URI:-"${REPO_VCS}/${REPO_NAMESPACE}/${REPO_PROJECT}"}
+
+WORKDIR /go/src/${REPO_URI}
+
+## deps
+COPY glide.lock glide.yaml ./
+
+## install commands
+RUN clear \
+    && glide install --strip-vendor
+
+# source code
+COPY src src
+
+RUN echo "\n---- DEBUG INFO -----\n" \
+    && which go \
+    && echo "\nPATH: ${PATH}\n"
+
+# ENTRYPOINT /opt/scripts/docker-entrypoint.sh
+CMD ["/bin/bash"]

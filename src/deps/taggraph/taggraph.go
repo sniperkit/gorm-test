@@ -1,6 +1,8 @@
 package taggraph
 
-import "sort"
+import (
+	"sort"
+)
 
 //TagGrapher is an interface for graph like collection of tags
 type TagGrapher interface {

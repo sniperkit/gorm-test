@@ -3,17 +3,22 @@ version: "3.6"
 services:
 
 ### App(s) ##############################################
-  app:
-    image: gorm.io/gorm-test:go1.10.3-alpine3.8
+  console:
+    image: sniperkit/console-golang:1.11beta3-alpine3.8-gorm-test
     container_name: gorm-test
     # restart: unless-stopped
-    detached: true
-    rm: true
+    # detached: true
+    # rm: true
     interactive: true
     tty: true
     # stdin_open: true
     build:
       context: "."
+      dockerfile: Dockerfile.console
+      args:
+      - CONSOLE_BASE_IMAGE_NAME=golang
+      - CONSOLE_BASE_IMAGE_TAG=1.11beta3-alpine3.8
+    env_file: [".env"]
     ports:
     - "8081:8081"
     volumes:
@@ -43,7 +48,7 @@ services:
 
 ### Elastic - Stack ##############################
   elstack:
-    image: gorm.io/elstack:dev-6.2-alpine
+    image: sniperkit/elstack:6.2-alpine-gorm-test
     container_name: elstack
     # restart: unless-stopped
     build:
@@ -81,7 +86,7 @@ services:
 
 ### APM ###########################################
   apm:
-    # image: sniperkit/apm-server:6.2-alpine
+    # image: sniperkit/apm-server:gorm-test-6.2-alpine
     image: docker.elastic.co/apm/apm-server:6.2.4
     container_name: apm
     # restart: unless-stopped
@@ -97,7 +102,7 @@ services:
 ### Postgres ##############################################
   postgres:
     image: postgres:10-alpine
-    # image: gorm.io/postgres:10.3-alpine
+    # image: sniperkit/postgres:10.3-alpine
     container_name: postgres
     # restart: unless-stopped
     # build:
@@ -147,7 +152,7 @@ services:
     - ./shared/certs/certificate.key:/certs/server.key:ro
     - ./shared/data/pgadmin:/var/lib/pgadmin
     environment:
-    - PGADMIN_DEFAULT_EMAIL=snk@gorm.io
+    - PGADMIN_DEFAULT_EMAIL=snk@sniperkit
     - PGADMIN_DEFAULT_PASSWORD=SuperSecret
     # - PGADMIN_ENABLE_TLS=false
     - PGADMIN_LISTEN_PORT=82
@@ -156,14 +161,13 @@ services:
 
 ### MSSQL ##############################################
   mssql:
-    image: 'gorm.io/mssqldocker:latest'
+    image: 'sniperkit/mssql:latest-gorm-test'
     container_name: mssql
-    # image: 'mcmoe/mssqldocker:latest'
     # restart: unless-stopped
     build:
       context: ./shared/docker/mssql/alpine
     ports:
-    - 9930:1433
+    - 1433:1433
     volumes:
     - ./shared/certs:/etc/certs:ro
     - ./shared/data/mssql/:/var/opt/mssql
@@ -177,7 +181,7 @@ services:
 
 ### MariaDB ##############################################
   mariadb:
-    image: gorm.io/mariadb:alpine
+    image: sniperkit/mariadb:10.2-alpine3.8-gorm-test
     container_name: mariadb
     # restart: unless-stopped
     build:
@@ -206,7 +210,7 @@ services:
 
 ### MySQL ################################################
   mysql:
-    image: gorm.io/mysql:alpine
+    image: sniperkit/mysql:10.2-alpine3.8-gorm-test
     container_name: mysql
     # restart: unless-stopped
     build:
@@ -269,7 +273,7 @@ services:
 
 ### Solr ################################################
   solr:
-    image: gorm.io/solr:5.5-alpine
+    image: sniperkit/solr:5.5-alpine-gorm-test
     container_name: solr
     # restart: unless-stopped
     build:
@@ -299,7 +303,7 @@ services:
 # - https://github.com/manticoresoftware/docker
 # docker build --target service -t sniperkit/manticore:2.7dev-alpine --no-cache .
   manticore:
-    image: gorm.io/manticore:2.7dev-alpine
+    image: sniperkit/manticore:2.7dev-alpine-gorm-test
     # restart: unless-stopped
     container_name: manticore
     build:
@@ -328,7 +332,7 @@ services:
 
 ### Nginx ##############################################
   nginx:
-    image: gorm.io/nginx:source-1.15.1-alpine3.8
+    image: sniperkit/nginx:source-1.15.1-alpine3.8-gorm-test
     container_name: nginx
     # restart: unless-stopped
     build:

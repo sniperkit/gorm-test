@@ -6,14 +6,14 @@ import (
 
 	// external
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	// _ "github.com/jinzhu/gorm/dialects/mysql"
-	// _ "github.com/jinzhu/gorm/dialects/postgres"
 
 	// internal
-	"github.com/sniperkit/gorm-test/cmd/gorm-examples/checkExistence"
-	"github.com/sniperkit/gorm-test/cmd/gorm-examples/compositePrimaryKey"
-	"github.com/sniperkit/gorm-test/cmd/gorm-examples/hasMany"
+	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/checkExistence"
+	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/compositePrimaryKey"
+	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/hasMany"
 )
 
 type Example func(db *gorm.DB)
