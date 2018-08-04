@@ -7,30 +7,37 @@ services:
     image: gorm.io/gorm-test:go1.10.3-alpine3.8
     container_name: gorm-test
     # restart: unless-stopped
+    detached: true
+    rm: true
+    interactive: true
+    tty: true
+    # stdin_open: true
     build:
       context: "."
-      target: interactive
-    # ports:
-    # - "8081:8081"
+    ports:
+    - "8081:8081"
     volumes:
-    - ./shared/certs:/etc/certs:ro
     - ./cmd:/go/src/github.com/sniperkit/gorm-test/cmd
     - ./pkg:/go/src/github.com/sniperkit/gorm-test/pkg
+    - ./shared:/go/src/github.com/sniperkit/gorm-test/shared
+    - ./shared/certs:/etc/certs:ro
     depends_on:
-    - mariadb
-    - postgres
-    - mysql
-    - elstack
     - manticore
+    - mariadb
+    # - postgres
+    # - mysql
+    # - elstack
     links:
     - manticore:manticore
     - mariadb:mariadb
-    - postgres:postgres
-    - mysql:mysql
-    - elstack:elstack
+    # - mysql:mysql
+    # - postgres:postgres
+    # - elstack:elstack
     networks:
     - backend
-    command: ["go", "run", "-race", "./cmd/gorm-load/*.go"]
+    working_dir: /go/src/github.com/sniperkit/gorm-test
+    command: ["/bin/bash"]
+    # command: ["go", "run", "-race", "./cmd/gorm-load/*.go"]
 
 ### Elasticsearch - Node ################################################################################ START #######
 

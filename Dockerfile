@@ -11,7 +11,8 @@
 ####################################
 ## Builder
 ###################################
-FROM golang:1.10.3-alpine3.7 AS builder
+# FROM golang:1.10.3-alpine3.7 AS builder
+FROM golang:1.11beta3-alpine3.8 AS builder
 
 ARG REPO_VCS=${REPO_VCS:-"github.com"}
 ARG REPO_NAMESPACE=${REPO_NAMESPACE:-"sniperkit"}
@@ -45,11 +46,12 @@ RUN go install ./... \
 ############################################################################################################
 ############################################################################################################
 
-FROM golang:1.10.3-alpine3.7 AS interactive
+# FROM golang:1.10.3-alpine3.7 AS interactive
+FROM golang:1.11beta3-alpine3.8
 
 ARG APK_BUILDER=${APK_BUILDER:-"gcc g++ make ca-certificates openssl git cmake mercurial make nano bash jq musl-dev wget curl alpine-sdk sqlite-dev sqlite-libs sqlite tree"}
 
-ENV PATH=${PATH:-"$PATH:$GOPATH/bin"}
+# ENV PATH=${PATH:-"$PATH:$GOPATH/bin"}
 
 RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
     ALPINE_GLIBC_PACKAGE_VERSION="2.27-r0" && \
@@ -126,7 +128,7 @@ ARG REPO_PROJECT=${REPO_PROJECT:-"gorm-test"}
 ARG REPO_URI=${REPO_URI:-"${REPO_VCS}/${REPO_NAMESPACE}/${REPO_PROJECT}"}
 
 ## add apk build dependencies
-RUN apk --no-cache --no-progress add gcc g++ make ca-certificates openssl git mercurial alpine-sdk cmake make musl-dev sqlite sqlite-dev socat
+RUN apk --no-cache --no-progress add gcc g++ make ca-certificates openssl git mercurial alpine-sdk cmake make musl-dev sqlite sqlite-dev socat bash nano
 
 WORKDIR /go/src/${REPO_URI}
 
@@ -136,6 +138,12 @@ COPY glide.lock glide.yaml ./
 ## install commands
 RUN go get -u github.com/Masterminds/glide \
     && glide install --strip-vendor
+
+RUN echo "\n---- DEBUG INFO -----\n" \
+    && which go \
+    && echo "\nPATH: ${PATH}\n"
+
+CMD ["/bin/bash"]
 
 ####################################
 ## Builder - image arguments
@@ -147,11 +155,11 @@ RUN go get -u github.com/Masterminds/glide \
 ####################################
 ## Build
 ####################################
-FROM alpine:3.7 AS dist
-WORKDIR /usr/bin
+# FROM alpine:3.7 AS dist
+# WORKDIR /usr/bin
 
-COPY --from=builder /go/bin ./
+# COPY --from=builder /go/bin ./
 
-RUN echo "\n---- DEBUG INFO -----\n" \
-    ls -l /usr/bin/gorm-* \
-    echo "\nPATH: ${PATH}\n"
+# RUN echo "\n---- DEBUG INFO -----\n" \
+#     ls -l /usr/bin/gorm-* \
+#     echo "\nPATH: ${PATH}\n"
