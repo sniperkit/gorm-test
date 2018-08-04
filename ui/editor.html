@@ -1,0 +1,84 @@
+---
+bindings:
+- name:     schema
+  resource: '/api/schema/{{ qs `collection` }}'
+
+- name:     record
+  resource: '/api/collections/{{ qs `collection` }}/records/{{ qs `record` }}'
+  optional: true
+  fallback: {}
+---
+<form
+    id="editor"
+    class="container"
+    method="post"
+    action="/api/collections/{{ qs `collection` }}/records/{{ qs `record` }}"
+>
+    <h2>Editing {{ .bindings.schema.name }} {{ if (qs `record`) }}{{ qs `record` }}{{ end }}</h2>
+
+    {{ if $.bindings.record.id }}
+    <input type="hidden" name="id" value="{{ $.bindings.record.id }}">
+    {{ end }}
+
+    {{ range .bindings.schema.fields }}
+    {{   if eqx .name `id` }}
+    {{     var `value` $.bindings.record.id }}
+    {{   else }}
+    {{     var `value` (get $.bindings.record.fields .name) }}
+    {{   end }}
+    <div class="form-group row">
+        <label
+            for="fields.{{ .name }}"
+            class="
+                col-sm-4
+                col-form-label
+                {{ if .identity }} text-danger{{ end }}
+                {{ if .required }} font-weight-bold{{ end }}
+            "
+        >
+            {{ .name }}
+        </label>
+        <div class="col-sm-8">
+            {{ if eqx .type `bool` }}
+            <select
+                name="fields.{{ .name }}"
+                class="form-control form-control-sm"
+                {{ if .required }}required{{ end }}
+                {{ if (and .identity $.vars.value) }}readonly{{ end }}
+            >
+                <option value="true"{{ if $.vars.value }} selected{{ end }}>True</option>
+                <option value="false"{{ if not $.vars.value }} selected{{ end }}>False</option>
+            </select>
+            {{ else if eqx .type `int` }}
+            <input
+                class="form-control form-control-sm"
+                type="number"
+                name="fields.{{ .name }}"
+                value="{{ $.vars.value }}"
+                {{ if .required }}required{{ end }}
+                {{ if (and .identity $.vars.value) }}readonly{{ end }}
+            ></input>
+            {{ else }}
+            <input
+                class="form-control form-control-sm"
+                type="text"
+                name="fields.{{ .name }}"
+                value="{{ $.vars.value }}"
+                {{ if .required }}required{{ end }}
+                {{ if (and .identity $.vars.value) }}readonly{{ end }}
+            ></input>
+            {{ end }}
+
+            {{ if .description }}
+            <small class="text-muted">{{ .description }}</small>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+
+    <div class="form-group row">
+        <button type="submit" class="btn btn-lg btn-primary">
+            Save Record
+        </button>
+    </div>
+</form>

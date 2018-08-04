@@ -1,0 +1,85 @@
+#content {
+    margin-top: 56px;
+}
+
+.navicon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    filter: grayscale(100%) brightness(0.75) contrast(200%);
+    -webkit-filter: grayscale(100%) brightness(0.75) contrast(200%);
+}
+
+#content .backend-icon {
+    width:  96px;
+    height: 96px;
+}
+
+#content .panel-title {
+    font-weight: bold;
+    font-size:   10pt;
+}
+
+.table-plain, .table-plain tbody, .table-plain tr {
+    margin-bottom: 0;
+    border-width: 0;
+}
+
+.elide {
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
+}
+
+.collections-list {
+    background:      #222;
+    padding:         0;
+    color:           #DDD;
+}
+
+.collections-list > .collections-list-header {
+    font-size:       18px;
+    background:      black;
+    color:           white;
+    padding:         1rem;
+    margin:          0;
+}
+
+#collections {
+    border-radius:   0;
+}
+
+#collections .list-group-item {
+    background:      transparent;
+    padding:         0.25rem 1rem;
+    border-radius:   0;
+    border:          0;
+    color:           #DDD;
+    overflow:        hidden;
+    text-overflow:   ellipsis;
+}
+
+#collections .list-group-item:hover {
+    background:      #111;
+    color:           white;
+}
+
+#browser {
+    padding:         0;
+}
+
+#browser > .container-fluid {
+    padding:         0;
+}
+
+#browser .browser-view {
+    margin:          0.5rem;
+}
+
+#browser .browser-header {
+    font-size:       18px;
+    background:      #444;
+    color:           white;
+    padding:         0.4rem 1rem;
+    margin:          0;
+}
