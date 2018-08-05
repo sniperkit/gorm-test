@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"reflect"
-	"strconv"
+	// "strconv"
 	"strings"
 
 	// external
@@ -15,18 +15,21 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
 	// "github.com/fatih/structs"
+	// "github.com/gocarina/gocsv"
 	"github.com/jinzhu/configor"
 	"github.com/k0kubun/pp"
 )
 
 var (
-	localDumpFile string = "/testdata/gh-starred.json"
+	localDumpFile string = "./shared/testdata/gh-starred.json"
 	// localDumpFile string = "../../shared/testdata/gh-starred.json"
 	withDialect string = "mysql"
 	withIndexer string = "manticore" // elasticsearch or manticore/sphinxsearch
 )
 
 /*
+	- /usr/local/opt/mysql@5.7/bin/mysql.server start
+
 	Refs:
 	- disable the NO_ZERO_DATE in your sql mode.
 		- select @@GLOBAL.sql_mode;
@@ -63,7 +66,8 @@ func main() {
 	case "mariadb":
 		fallthrough
 	case "mysql":
-		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "root", "gorm_super_secret", "mariadb", "3306", "gorm_mariadb_test"))
+		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local&charset=utf8mb4", "root", "da33ve79T!", "127.0.0.1", "3306", "snk_gorm_test"))
+		// db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "root", "gorm_super_secret", "mariadb", "3306", "gorm_mariadb_test"))
 		if err != nil {
 			log.Fatalln("error while creating connection with database (", withDialect, "): ", err)
 		}
@@ -78,7 +82,11 @@ func main() {
 
 	defer db.Close()
 	db.LogMode(true)
+	// db.Set("gorm:table_options", "charset=utf8")
+	// db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8 auto_increment=1")
 
+	// db = db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1")
+	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 auto_increment=1")
 	truncateTables(db, testTables...)
 
 	content, err := ioutil.ReadFile(localDumpFile)
@@ -91,19 +99,23 @@ func main() {
 		log.Fatalln("error while Unmarshaling: ", err)
 	}
 
-	starredWriterCSV, err := newCsvWriter("star.csv")
-	if err != nil {
-		log.Fatalln("error while creating csv writer for starred repos: ", err)
-	}
+	/*
+		starredWriterCSV, err := newCsvWriter("star.csv")
+		if err != nil {
+			log.Fatalln("error while creating csv writer for starred repos: ", err)
+		}
 
-	topicsWriterCSV, err := newCsvWriter("tags.csv")
-	if err != nil {
-		log.Fatalln("error while creating csv writer for starred topics: ", err)
-	}
+		topicsWriterCSV, err := newCsvWriter("tags.csv")
+		if err != nil {
+			log.Fatalln("error while creating csv writer for starred topics: ", err)
+		}
+	*/
 
 	var i = 0
 
-	var stars []star
+	// var stars []Star
+
+	// db.Model(&user).Association("Languages")
 
 	for _, star := range starred {
 		var uri, desc, readme, lang string
@@ -129,61 +141,18 @@ func main() {
 		dtags = RemoveSliceDuplicates(dtags, true)
 		dtags = AddTopicsPrefix(dtags, "", true)
 
-		// if err := db.Model(&star).Association("Tags").Error; err != nil {
-		//	log.Println("error while creating association: ", err)
-		//}
-
 		pp.Println("FULLNAME=", *star.FullName, ", URI=", uri)
 
-		// for _, t := range dtags {
-		// star.setTags(db, dtags, "", true)
-		//}
-
-		for _, topic := range dtags {
-			topicRow := []string{"", topic}
-			// topicRow := []string{"", strconv.Itoa(star.RemoteID), topic}
-			if err := topicsWriterCSV.Write(topicRow); err != nil {
-				log.Fatalln("error while writing the topic row to the csv file: ", err)
-			}
+		// star.Tags = Topics2Tags(dtags, "", true)
+		if _, _, err := CreateOrUpdateStar(db, &star); err != nil {
+			log.Fatalln("CreateOrUpdateStar.Error: ", err)
 		}
 
-		starRow := []string{"", strconv.Itoa(star.RemoteID)}
-		starRow = append(starRow, GetFields(star)...)
-
-		if err := starredWriterCSV.Write(starRow); err != nil {
-			log.Fatalln("error while writing the star row to the csv file: ", err)
-		}
-
-		if err := star.setTags(db, dtags, "snk/", true); err != nil {
-			log.Fatalln("error while saving star into db: ", err)
-		}
-
-		stars = append(stars, star)
-
-		// if err := db.Set("gorm:insert_option", "ON DUPLICATE KEY UPDATE").Model(&star).Association("Tags").Append(Topics2Tags(dtags, "", true)).Error; err != nil {
-		//if err := db.Model(&star).Association("Tags").Append(Topics2Tags(dtags, "", true)).Error; err != nil {
-		//	log.Println("error while appending to stars/tags association: ", err)
-		//}
-
-		// err := db.Save(star).Association("Tags").Error
-		// if err := db.Save(&star).Error; err != nil {
-		//	log.Println("error while saving data into db: ", err)
-		// }
-		// pp.Println(star)
+		star.setTags(db, dtags, "", true)
 
 		i++
 
 	}
-
-	if err := db.Save(&stars).Error; err != nil {
-		log.Println("error while saving star into db: ", err)
-	}
-
-	starredWriterCSV.Flush()
-	starredWriterCSV.Close()
-
-	topicsWriterCSV.Flush()
-	topicsWriterCSV.Close()
 
 	pp.Println("processed: ", i)
 

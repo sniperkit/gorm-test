@@ -6,7 +6,7 @@ import (
 	// "runtime"
 
 	// internal
-	"github.com/sniperkit/gorm-test/pkg/ccsv"
+	"github.com/sniperkit/gorm-test/src/pkg/ccsv"
 )
 
 var (

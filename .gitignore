@@ -19,6 +19,12 @@
 *_windows_amd64.exe
 *_windows_amd64_pro.exe
 
+vendor
+vendor/*
+vendor/**
+
+/vendor/*
+
 debug
 dist
 node_modules
