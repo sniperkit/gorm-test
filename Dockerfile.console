@@ -108,14 +108,7 @@ COPY glide.lock glide.yaml ./
 
 ## install commands
 RUN clear \
-    && glide install --strip-vendor
-
-# source code
-COPY src src
-
-RUN echo "\n---- DEBUG INFO -----\n" \
-    && which go \
-    && echo "\nPATH: ${PATH}\n"
+    && glide update --strip-vendor
 
 # ENTRYPOINT /opt/scripts/docker-entrypoint.sh
 CMD ["/bin/bash"]

@@ -3,7 +3,26 @@
 
 .docker-sync
 
-/.DS_Store
+**/.DS_Store
+
+.git
+.git/**
+
+.hooks/
+.hooks/**
+
+.github/
+.github/**
+
+.gitignore
+.dockerignore
+
+*.yml
+*.md
+Dockerfile
+Gopkg.*
+data
+data/**
 
 .DS_Store
 .idea

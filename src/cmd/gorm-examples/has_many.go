@@ -1,4 +1,4 @@
-package hasMany
+package main
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type User struct {
+type UserMany struct {
 	ID    uint `gorm:"primary_key"`
 	Name  string
 	Roles []Role
@@ -18,13 +18,13 @@ type Role struct {
 	UserID uint
 }
 
-func Example(db *gorm.DB) {
+func hasManyExample(db *gorm.DB) {
 	// init db
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&UserMany{})
 	db.AutoMigrate(&Role{})
-	db.Model(&User{}).Related(&Role{})
+	db.Model(&UserMany{}).Related(&Role{})
 	// create user1 in 'users' table and role1, role2 in 'roles' table.
-	user := User{
+	user := UserMany{
 		Name: "user1",
 		Roles: []Role{
 			{Name: "role1"},
@@ -34,7 +34,7 @@ func Example(db *gorm.DB) {
 	db.Create(&user)
 
 	// find the created user.  for eager loading, 'Preload("Roles")' is required.
-	found := &User{}
+	found := &UserMany{}
 	db.Preload("Roles").Find(&found)
 	fmt.Println(found)
 }

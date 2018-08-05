@@ -9,19 +9,14 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
-	// internal
-	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/checkExistence"
-	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/compositePrimaryKey"
-	"github.com/sniperkit/gorm-test/src/cmd/gorm-examples/hasMany"
 )
 
 type Example func(db *gorm.DB)
 
 var examples = map[string]Example{
-	"Has many":                  hasMany.Example,
-	"Check if the record exist": checkExistence.Example,
-	"Composite Primary Key":     compositePrimaryKey.Example,
+	"Has many":                  hasManyExample,
+	"Check if the record exist": checkExistenceExample,
+	"Composite Primary Key":     compositePrimaryKeyExample,
 }
 
 func main() {
@@ -35,7 +30,7 @@ func main() {
 
 func run(name string) {
 	ex := examples[name]
-	file := "test.db"
+	file := "/data/gorm-examples.db"
 	db, err := gorm.Open("sqlite3", file)
 	if err != nil {
 		panic("failed to connect database")

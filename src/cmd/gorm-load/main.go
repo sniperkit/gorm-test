@@ -5,17 +5,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"reflect"
+	"strconv"
 	"strings"
 
+	// external
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
+	// "github.com/fatih/structs"
+	"github.com/jinzhu/configor"
 	"github.com/k0kubun/pp"
 )
 
 var (
-	localDumpFile string = "./shared/testdata/gh-starred.json"
+	localDumpFile string = "/testdata/gh-starred.json"
 	// localDumpFile string = "../../shared/testdata/gh-starred.json"
 	withDialect string = "mysql"
 	withIndexer string = "manticore" // elasticsearch or manticore/sphinxsearch
@@ -36,23 +41,36 @@ var (
 		- https://github.com/Depado/articles/blob/master/pages/gorm-gotchas.md
 */
 
+func loadConfig() {
+	configor.Load(cfg, "config.yml")
+	pp.Printf("config: %#v", cfg)
+}
+
 func main() {
 
 	// db.Set("gorm:insert_option", "ON DUPLICATE KEY UPDATE").Create(&star)
 	// ON DUPLICATE KEY UPDATE
 
+	log.Println("withDialect: ", withDialect)
+
 	var db *gorm.DB
 	var err error
 	switch withDialect {
+	case "postgres":
+		fallthrough
+	case "mssql":
+		log.Fatalln("database type ", withDialect, "not ready yet...")
+	case "mariadb":
+		fallthrough
 	case "mysql":
-		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "gorm_test", "gorm1234T!", "127.0.0.1", "3306", "gorm_test"))
+		db, err = gorm.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local", "root", "gorm_super_secret", "mariadb", "3306", "gorm_mariadb_test"))
 		if err != nil {
-			log.Fatalln("error while creating connection with database: ", err)
+			log.Fatalln("error while creating connection with database (", withDialect, "): ", err)
 		}
 	case "sqlite", "sqlite3":
 		fallthrough
 	default:
-		db, err = gorm.Open("sqlite", "gh_starred.db")
+		db, err = gorm.Open("sqlite", "/data/gh_starred.db")
 		if err != nil {
 			log.Fatalln("error while creating connection with database: ", err)
 		}
@@ -73,7 +91,20 @@ func main() {
 		log.Fatalln("error while Unmarshaling: ", err)
 	}
 
+	starredWriterCSV, err := newCsvWriter("star.csv")
+	if err != nil {
+		log.Fatalln("error while creating csv writer for starred repos: ", err)
+	}
+
+	topicsWriterCSV, err := newCsvWriter("tags.csv")
+	if err != nil {
+		log.Fatalln("error while creating csv writer for starred topics: ", err)
+	}
+
 	var i = 0
+
+	var stars []star
+
 	for _, star := range starred {
 		var uri, desc, readme, lang string
 
@@ -108,13 +139,26 @@ func main() {
 		// star.setTags(db, dtags, "", true)
 		//}
 
+		for _, topic := range dtags {
+			topicRow := []string{"", topic}
+			// topicRow := []string{"", strconv.Itoa(star.RemoteID), topic}
+			if err := topicsWriterCSV.Write(topicRow); err != nil {
+				log.Fatalln("error while writing the topic row to the csv file: ", err)
+			}
+		}
+
+		starRow := []string{"", strconv.Itoa(star.RemoteID)}
+		starRow = append(starRow, GetFields(star)...)
+
+		if err := starredWriterCSV.Write(starRow); err != nil {
+			log.Fatalln("error while writing the star row to the csv file: ", err)
+		}
+
 		if err := star.setTags(db, dtags, "snk/", true); err != nil {
 			log.Fatalln("error while saving star into db: ", err)
 		}
 
-		if err := db.Save(&star).Error; err != nil {
-			log.Println("error while saving star into db: ", err)
-		}
+		stars = append(stars, star)
 
 		// if err := db.Set("gorm:insert_option", "ON DUPLICATE KEY UPDATE").Model(&star).Association("Tags").Append(Topics2Tags(dtags, "", true)).Error; err != nil {
 		//if err := db.Model(&star).Association("Tags").Append(Topics2Tags(dtags, "", true)).Error; err != nil {
@@ -131,6 +175,24 @@ func main() {
 
 	}
 
+	if err := db.Save(&stars).Error; err != nil {
+		log.Println("error while saving star into db: ", err)
+	}
+
+	starredWriterCSV.Flush()
+	starredWriterCSV.Close()
+
+	topicsWriterCSV.Flush()
+	topicsWriterCSV.Close()
+
 	pp.Println("processed: ", i)
 
+}
+
+func GetFields(i interface{}) (res []string) {
+	v := reflect.ValueOf(i)
+	for j := 0; j < v.NumField(); j++ {
+		res = append(res, v.Field(j).String())
+	}
+	return
 }

@@ -41,20 +41,19 @@ type Topic struct {
 
 // Star represents a starred repository
 type Star struct {
-	gorm.Model
-	RemoteID    string   // `gorm:"index;"`
-	Name        *string  `gorm:"type:varchar(255);" json:"name"`
-	FullName    *string  `gorm:"type:varchar(255);" json:"full_name"`
-	Description *string  `gorm:"type:longtext;" json:"description"`
-	Homepage    *string  `gorm:"type:varchar(255);" json:"homepage"`
-	URL         *string  `gorm:"type:varchar(255);" json:"svn_url"`
-	Language    *string  `gorm:"type:varchar(64);" json:"language"`
-	Topics      []string `gorm:"-" json:"topics"`
-	Stargazers  int      `json:"stargarzers_count"`
-	StarredAt   time.Time
-	ServiceID   uint  // `gorm:"index;"`
-	Tags        []Tag `gorm:"many2many:star_tags;"`
-	// DT          []Tag `gorm:"-"`
+	// gorm.Model
+	RemoteID    int       `json:"id" gorm:"index;"`
+	Name        *string   `gorm:"type:varchar(255);" json:"name"`
+	FullName    *string   `gorm:"type:varchar(255);" json:"full_name"`
+	Description *string   `gorm:"type:longtext;" json:"description"`
+	Homepage    *string   `gorm:"type:varchar(255);" json:"homepage"`
+	URL         *string   `gorm:"type:varchar(255);" json:"svn_url"`
+	Language    *string   `gorm:"type:varchar(64);" json:"language"`
+	Topics      []string  `gorm:"-" json:"topics"`
+	Stargazers  int       `json:"stargarzers_count"`
+	StarredAt   time.Time `json:"starred_at"`
+	ServiceID   uint      `json:"service_id" gorm:"index;"`
+	Tags        []Tag     `json:"-" gorm:"many2many:star_tags;"`
 }
 
 /*
@@ -95,9 +94,11 @@ func (s *Star) setTags(db *gorm.DB, topics []string, prefix string, noEmpty bool
 }
 
 type Tag struct {
-	gorm.Model
-	// Name string `gorm:"unique_index;type:varchar(255);not null"`
-	Name string `gorm:"primary_key;type:varchar(255);not null;"`
+	// gorm.Model
+	// ID   uint   `gorm:"primary_key"`
+	Name string `gorm:"unique_index;type:varchar(255);not null"`
+	// Name string `gorm:"primary_key;type:varchar(255);not null"`
+	// Name string `gorm:"primary_key;type:varchar(255);not null;"`
 	// Name      string `gorm:"type:varchar(255);unique_index;not null;"`
 	Stars     []Star `gorm:"many2many:star_tags;"`
 	StarCount int    `gorm:"-"`

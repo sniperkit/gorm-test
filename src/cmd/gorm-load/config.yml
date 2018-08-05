@@ -1,0 +1,48 @@
+---
+database:
+  active_profile: mariadb10-2
+  # mode: dev
+
+  profiles:
+    - id: postgres10-3
+      hostname: postgres
+      port: 5432
+      user_password: gorm
+      password: LoremIpsum86
+      database: gorm
+      insecure: true
+
+    - id: mysql10-2
+      hostname: mysql
+      port: 3136
+      user: gorm_mysql
+      user_password: gorm_secret
+      root_password: gorm_super_secret
+      database: gorm_mysql_test
+      insecure: true
+
+    - id: mariadb10-2
+      hostname: mariadb
+      port: 3336
+      user: gorm_mariadb
+      user_password: gorm_secret
+      root_password: gorm_super_secret
+      database: gorm_mariadb_test
+      insecure: true
+
+    - id: maticore2-7
+      hostname: mariadb
+      port: 3336
+      user: gorm_mariadb
+      user_password: gorm_secret
+      root_password: gorm_super_secret
+      database: gorm_mariadb_test
+      insecure: true
+
+    - id: mssql
+      hostname: mssql
+      port: 3336
+      user: gorm
+      user_password: LoremIpsum86
+      database: gorm
+      insecure: true

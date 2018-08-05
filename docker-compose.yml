@@ -8,7 +8,7 @@ services:
     container_name: gorm-test
     # restart: unless-stopped
     # detached: true
-    # rm: true
+    rm: true
     interactive: true
     tty: true
     # stdin_open: true
@@ -18,14 +18,19 @@ services:
       args:
       - CONSOLE_BASE_IMAGE_NAME=golang
       - CONSOLE_BASE_IMAGE_TAG=1.11beta3-alpine3.8
-    env_file: [".env"]
+    # env_file: [".env"]
     ports:
     - "8081:8081"
     volumes:
-    - ./cmd:/go/src/github.com/sniperkit/gorm-test/cmd
-    - ./pkg:/go/src/github.com/sniperkit/gorm-test/pkg
-    - ./shared:/go/src/github.com/sniperkit/gorm-test/shared
+    - ./glide.lock:/go/src/github.com/sniperkit/gorm-test/glide.lock
+    - ./glide.yaml:/go/src/github.com/sniperkit/gorm-test/glide.yaml
     - ./shared/certs:/etc/certs:ro
+    - ./shared/config/console:/config
+    - ./shared/data/console:/data
+    - ./shared/testdata:/testdata
+    - ./src/cmd:/go/src/github.com/sniperkit/gorm-test/cmd
+    - ./src/pkg:/go/src/github.com/sniperkit/gorm-test/pkg
+    - ./src/pkg:/go/src/github.com/sniperkit/gorm-test/pkg
     depends_on:
     - manticore
     - mariadb
@@ -40,9 +45,11 @@ services:
     # - elstack:elstack
     networks:
     - backend
-    working_dir: /go/src/github.com/sniperkit/gorm-test
+    working_dir: /go/src/github.com/sniperkit/gorm-test/cmd/gorm-load
     command: ["/bin/bash"]
-    # command: ["go", "run", "-race", "./cmd/gorm-load/*.go"]
+    # command: ["go", "run", "*.go"]
+    # warning: won't work inside alpine container
+    # command: ["go", "run", "-race", "*.go"]
 
 ### Elasticsearch - Node ################################################################################ START #######
 

@@ -2,8 +2,23 @@ package: github.com/sniperkit/gorm-test
 ignore:
 - github.com/Sirupsen/logrus
 import:
+- package: github.com/StackExchange/wmi
+- package: github.com/Azareal/gopsutil
+- package: gopkg.in/sourcemap.v1
+- package: github.com/ckaznocha/taggraph
+- package: github.com/pkg/errors
+- package: github.com/fsnotify/fsnotify
+- package: github.com/esimov/caire
+- package: github.com/lib/pq
+- package: github.com/denisenkom/go-mssqldb
 - package: github.com/iris-contrib/go.uuid
   version: master
+- package: github.com/jinzhu/inflection
+- package: github.com/mattn/go-colorable
+- package: gopkg.in/yaml.v2
+- package: github.com/ghodss/yaml
+- package: github.com/json-iterator/go
+- package: github.com/BurntSushi/toml
 - package: github.com/gogo/protobuf
   subpackages:
   - proto
@@ -244,6 +259,8 @@ import:
   version: master
   subpackages:
   - acme/autocert
+  - argon2
+  - bcrypt
 - package: github.com/jinzhu/configor
   version: master
 - package: github.com/orcaman/concurrent-map

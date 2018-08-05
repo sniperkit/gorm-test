@@ -1,4 +1,4 @@
-package compositePrimaryKey
+package main
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type User struct {
+type UserCPK struct {
 	Name  string `gorm:"primary_key"`
 	Email string `gorm:"primary_key"`
 }
@@ -19,9 +19,9 @@ func (m MutedLogger) Print(v ...interface{}) {
 	// do nothing
 }
 
-func Example(db *gorm.DB) {
-	db.AutoMigrate(&User{})
-	user1 := User{
+func compositePrimaryKeyExample(db *gorm.DB) {
+	db.AutoMigrate(&UserCPK{})
+	user1 := UserCPK{
 		Name:  "a",
 		Email: "a@foo.com",
 	}
@@ -29,7 +29,7 @@ func Example(db *gorm.DB) {
 		panic(err)
 	}
 
-	user2 := User{
+	user2 := UserCPK{
 		Name:  "a",
 		Email: "a@foo.com",
 	}
@@ -41,7 +41,7 @@ func Example(db *gorm.DB) {
 	}
 	db.SetLogger(gorm.Logger{})
 
-	user3 := User{
+	user3 := UserCPK{
 		Name:  "a",
 		Email: "a@bar.com",
 	}
@@ -51,7 +51,7 @@ func Example(db *gorm.DB) {
 		// expected behavior
 	}
 
-	allUsers := []User{}
+	allUsers := []UserCPK{}
 	db.Find(&allUsers)
 	fmt.Println("Created users:")
 	for _, v := range allUsers {

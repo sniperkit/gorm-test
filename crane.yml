@@ -33,13 +33,18 @@ groups:
   - postgres
   - elstack
   dev:
-  - console
   - mysql
   - mariadb
   - manticore
   - postgres
+  - console
   # - elstack
   rmdb:
+  - mysql
+  - mariadb
+  - postgres
+  - manticore
+  rmdb-base:
   - mysql
   - mariadb
   - postgres

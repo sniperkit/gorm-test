@@ -1,4 +1,4 @@
-package checkExistence
+package main
 
 import (
 	"fmt"
@@ -7,21 +7,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type User struct {
+type UserCheck struct {
 	ID   uint `gorm:"primary_key"`
 	Name string
 }
 
-func Example(db *gorm.DB) {
-	db.AutoMigrate(&User{})
-	user := User{
+func checkExistenceExample(db *gorm.DB) {
+	db.AutoMigrate(&UserCheck{})
+	user := UserCheck{
 		ID:   1,
 		Name: "foo",
 	}
 	db.Create(&user)
 
 	// find existing 'foo'
-	found := User{}
+	found := UserCheck{}
 	if result := db.Find(&found, 1); result.RecordNotFound() {
 		panic("record should be found")
 	}
